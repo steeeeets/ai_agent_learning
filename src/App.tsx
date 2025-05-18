@@ -1,38 +1,51 @@
 import React, { useState, useEffect } from 'react';
+import Header from './components/Header';
 import BlockNavigation from './components/BlockNavigation';
-import BlockContent from './components/BlockContent';
+import ContentView from './components/ContentView';
 import { ContentBlock, getAllBlocks, getContent } from './lib/content';
 import './App.css';
 
 function App() {
   const [blocks, setBlocks] = useState<ContentBlock[]>([]);
-  const [activeBlock, setActiveBlock] = useState<ContentBlock | null>(null);
-  const [activeBlockId, setActiveBlockId] = useState<string>('');
+  const [selectedBlock, setSelectedBlock] = useState<ContentBlock | null>(null);
 
   useEffect(() => {
     const loadBlocks = async () => {
-      const loadedBlocks = await getAllBlocks();
-      setBlocks(loadedBlocks);
+      const allBlocks = await getAllBlocks();
+      setBlocks(allBlocks);
+      if (allBlocks.length > 0) {
+        const firstBlock = await getContent(allBlocks[0].id);
+        setSelectedBlock(firstBlock);
+      }
     };
     loadBlocks();
   }, []);
 
   const handleSelectBlock = async (blockId: string) => {
-    setActiveBlockId(blockId);
-    const content = await getContent(blockId);
-    setActiveBlock(content);
+    const block = await getContent(blockId);
+    if (block) {
+      setSelectedBlock(block);
+    }
   };
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <BlockNavigation 
-          blocks={blocks} 
-          onSelectBlock={handleSelectBlock}
-          activeBlockId={activeBlockId}
-        />
-        {activeBlock && <BlockContent block={activeBlock} />}
-      </div>
+      <Header 
+        title="AI Agent Learning"
+        subtitle="Building Intelligent Agents with Large Language Models"
+      />
+      <main className="max-w-7xl mx-auto px-4 md:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+          <BlockNavigation 
+            blocks={blocks}
+            onSelectBlock={handleSelectBlock}
+            activeBlockId={selectedBlock?.id || ''}
+          />
+          <ContentView 
+            activeBlock={selectedBlock}
+          />
+        </div>
+      </main>
     </div>
   );
 }

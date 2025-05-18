@@ -1,6 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { ContentBlock } from '../data/content';
+import { ContentBlock } from '../lib/content';
+import ReactMarkdown from 'react-markdown';
 
 interface ContentViewProps {
   activeBlock: ContentBlock | null;
@@ -30,18 +31,8 @@ const ContentView: React.FC<ContentViewProps> = ({ activeBlock }) => {
         <p className="text-gray-600 text-lg">{activeBlock.description}</p>
       </div>
 
-      <div className="space-y-4">
-        {activeBlock.content.map((paragraph, index) => (
-          <motion.p 
-            key={index} 
-            className="text-gray-700 leading-relaxed"
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: 0.1 * index }}
-          >
-            {paragraph}
-          </motion.p>
-        ))}
+      <div className="prose prose-lg max-w-none">
+        <ReactMarkdown>{activeBlock.content}</ReactMarkdown>
       </div>
     </motion.div>
   );
